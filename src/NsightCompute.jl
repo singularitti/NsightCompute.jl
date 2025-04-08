@@ -1,5 +1,5 @@
 module NsightCompute
 
-# Write your package code here.
+include("flops.jl")
 
 end
