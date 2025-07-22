@@ -23,10 +23,12 @@ function compute_flops(data::DataFrame)
     ]
     inst_ffma = data[:, "derived__smsp__sass_thread_inst_executed_op_ffma_pred_on_x2"]
     # Half precision
+    inst_hadd = data[:, "derived__smsp__sass_thread_inst_executed_op_hadd_pred_on_x2"]
+    inst_hmul = data[:, "derived__smsp__sass_thread_inst_executed_op_hmul_pred_on_x2"]
     inst_hfma = data[:, "derived__smsp__sass_thread_inst_executed_op_hfma_pred_on_x4"]
     FLOPS_double_precision = (inst_dfma .+ inst_dadd .+ inst_dmul) .* gpu_freq_hz
     FLOPS_single_precision = (inst_ffma .+ inst_fadd .+ inst_fmul) .* gpu_freq_hz
-    FLOPS_half_precision = inst_hfma .* gpu_freq_hz
+    FLOPS_half_precision = (inst_hadd .+ inst_hmul .+ inst_hfma) .* gpu_freq_hz
     FLOPS_total = FLOPS_double_precision .+ FLOPS_single_precision .+ FLOPS_half_precision
     result = hcat(
         data,
