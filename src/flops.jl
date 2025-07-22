@@ -1,5 +1,5 @@
 using CSV: File
-using DataFrames: hcat
+using DataFrames: hcat, nrow
 
 export compute_flops
 
@@ -24,9 +24,15 @@ function compute_flops(data::DataFrame)
     ]
     inst_ffma = data[:, "derived__smsp__sass_thread_inst_executed_op_ffma_pred_on_x2"]
     # Half precision
-    inst_hadd = data[:, "derived__smsp__sass_thread_inst_executed_op_hadd_pred_on_x2"]
-    inst_hmul = data[:, "derived__smsp__sass_thread_inst_executed_op_hmul_pred_on_x2"]
-    inst_hfma = data[:, "derived__smsp__sass_thread_inst_executed_op_hfma_pred_on_x4"]
+    inst_hadd = safe_column(
+        data[:, "derived__smsp__sass_thread_inst_executed_op_hadd_pred_on_x2"]
+    )
+    inst_hmul = safe_column(
+        data[:, "derived__smsp__sass_thread_inst_executed_op_hmul_pred_on_x2"]
+    )
+    inst_hfma = safe_column(
+        data[:, "derived__smsp__sass_thread_inst_executed_op_hfma_pred_on_x4"]
+    )
     # Tensor Core (from raw tensor metrics)
     tc_bf16 = data[:, "sm__ops_path_tensor_src_bf16_dst_fp32.sum.per_cycle_elapsed"]
     tc_fp16 = data[:, "sm__ops_path_tensor_src_fp16.sum.per_cycle_elapsed"]
@@ -63,3 +69,11 @@ function compute_flops(data::DataFrame)
 end
 compute_flops(filepath::String) =
     compute_flops(DataFrame(File(filepath; header=1, skipto=3)))
+
+function safe_column(col)
+    if eltype(col) <: AbstractString
+        return [v == "no data" ? 0.0 : parse(Float64, v) for v in col]
+    else
+        return coalesce.(col, 0.0)
+    end
+end
