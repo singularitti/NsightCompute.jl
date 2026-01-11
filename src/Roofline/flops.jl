@@ -1,5 +1,5 @@
 using CSV: File
-using DataFrames: hcat, nrow
+using Tables: Tables
 
 export compute_flops
 
@@ -41,11 +41,11 @@ const METRIC_FACTORS = (
     ),
 )
 
-function compute_flops(data::DataFrame)
+function compute_flops(table)
     # Helpers: load a metric (apply its factor) and sum all metrics inside a group.
-    n = nrow(data)
+    n = length(Tables.rows(table))
     _load_metric((name, factor)) =
-        (name in names(data)) ? safe_column(data[:, name]) .* factor : zeros(n)
+        (name in names(table)) ? safe_column(table[:, name]) .* factor : zeros(n)
     function _sum_group(group::Symbol)
         s = zeros(n)
         grp = getfield(METRIC_FACTORS, group)
@@ -64,18 +64,13 @@ function compute_flops(data::DataFrame)
     FLOPS_total =
         FLOPS_double_precision .+ FLOPS_single_precision .+ FLOPS_half_precision .+
         FLOPS_tensor_core
-    result = hcat(
-        data,
-        DataFrame(;
-            FLOPS_double_precision=FLOPS_double_precision,
-            FLOPS_single_precision=FLOPS_single_precision,
-            FLOPS_half_precision=FLOPS_half_precision,
-            FLOPS_tensor_core=FLOPS_tensor_core,
-            FLOPS_total=FLOPS_total,
-        );
-        makeunique=true,
+    return (;
+        FLOPS_double_precision=FLOPS_double_precision,
+        FLOPS_single_precision=FLOPS_single_precision,
+        FLOPS_half_precision=FLOPS_half_precision,
+        FLOPS_tensor_core=FLOPS_tensor_core,
+        FLOPS_total=FLOPS_total,
     )
-    return result
 end
 compute_flops(filepath::String) =
     compute_flops(DataFrame(File(filepath; header=1, skipto=3)))
