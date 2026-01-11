@@ -44,10 +44,8 @@ const METRIC_FACTORS = (
 function compute_flops(data::DataFrame)
     # Helpers: load a metric (apply its factor) and sum all metrics inside a group.
     n = nrow(data)
-    function _load_metric((name, factor))
-        # tuple (name, factor)
-        return (name in names(data)) ? safe_column(data[:, name]) .* factor : zeros(n)
-    end
+    _load_metric((name, factor)) =
+        (name in names(data)) ? safe_column(data[:, name]) .* factor : zeros(n)
     function _sum_group(group::Symbol)
         s = zeros(n)
         grp = getfield(METRIC_FACTORS, group)
