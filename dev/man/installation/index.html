@@ -6,25 +6,107 @@ julia&gt; Pkg.update()
 julia&gt; Pkg.add(&quot;NsightCompute&quot;)</code></pre></li><li><p>Run</p><pre><code class="language-julia-repl hljs">julia&gt; using NsightCompute</code></pre><p>and have fun!</p></li><li><p>Please keep the Julia session active while using it. Restarting the session may take some time.</p></li></ol><p>If you want to install the latest in-development (probably buggy) version of NsightCompute, type</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using Pkg</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.update()</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr32"><span class="sgr1">    Updating</span></span> registry at `~/.julia/registries/General.toml`
 <span class="sgr36"><span class="sgr1">     Project</span></span> No packages added to or removed from `~/work/NsightCompute.jl/NsightCompute.jl/docs/Project.toml`
 <span class="sgr36"><span class="sgr1">    Manifest</span></span> No packages added to or removed from `~/work/NsightCompute.jl/NsightCompute.jl/docs/Manifest.toml`</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; pkg&quot;add https://github.com/singularitti/NsightCompute.jl&quot;</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr33"><span class="sgr1">┌ Warning: </span></span>The Pkg REPL mode is intended for interactive use only, and should not be used from scripts. It is recommended to use the functional API instead.
-<span class="sgr33"><span class="sgr1">└ </span></span><span class="sgr90">@ Pkg.REPLMode /opt/hostedtoolcache/julia/1.12.2/x64/share/julia/stdlib/v1.12/Pkg/src/REPLMode/REPLMode.jl:390</span>
+<span class="sgr33"><span class="sgr1">└ </span></span><span class="sgr90">@ Pkg.REPLMode /opt/hostedtoolcache/julia/1.12.4/x64/share/julia/stdlib/v1.12/Pkg/src/REPLMode/REPLMode.jl:398</span>
 <span class="sgr32"><span class="sgr1">     Cloning</span></span> git-repo `https://github.com/singularitti/NsightCompute.jl`
 <span class="sgr32"><span class="sgr1">    Updating</span></span> git-repo `https://github.com/singularitti/NsightCompute.jl`
 <span class="sgr32"><span class="sgr1">   Resolving</span></span> package versions...
 <span class="sgr32"><span class="sgr1">    Updating</span></span> `~/work/NsightCompute.jl/NsightCompute.jl/docs/Project.toml`
-  <span class="sgr90">[5f16bdfc] </span><span class="sgr93">~ NsightCompute v1.0.0-DEV `~/work/NsightCompute.jl/NsightCompute.jl` ⇒ v1.0.0-DEV `https://github.com/singularitti/NsightCompute.jl#main` [loaded: `/home/runner/work/NsightCompute.jl/NsightCompute.jl/src/NsightCompute.jl` (v1.0.0-DEV) expected `/home/runner/.julia/packages/NsightCompute/QKHyU/src/NsightCompute.jl` (v1.0.0-DEV)]</span>
+  <span class="sgr90">[5f16bdfc] </span><span class="sgr93">~ NsightCompute v1.0.0-DEV `~/work/NsightCompute.jl/NsightCompute.jl` ⇒ v1.0.0-DEV `https://github.com/singularitti/NsightCompute.jl#main` [loaded: `/home/runner/work/NsightCompute.jl/NsightCompute.jl/src/NsightCompute.jl` (v1.0.0-DEV) expected `/home/runner/.julia/packages/NsightCompute/0LngZ/src/NsightCompute.jl` (v1.0.0-DEV)]</span>
 <span class="sgr32"><span class="sgr1">    Updating</span></span> `~/work/NsightCompute.jl/NsightCompute.jl/docs/Manifest.toml`
-  <span class="sgr90">[5f16bdfc] </span><span class="sgr93">~ NsightCompute v1.0.0-DEV `~/work/NsightCompute.jl/NsightCompute.jl` ⇒ v1.0.0-DEV `https://github.com/singularitti/NsightCompute.jl#main` [loaded: `/home/runner/work/NsightCompute.jl/NsightCompute.jl/src/NsightCompute.jl` (v1.0.0-DEV) expected `/home/runner/.julia/packages/NsightCompute/QKHyU/src/NsightCompute.jl` (v1.0.0-DEV)]</span>
+  <span class="sgr90">[5f16bdfc] </span><span class="sgr93">~ NsightCompute v1.0.0-DEV `~/work/NsightCompute.jl/NsightCompute.jl` ⇒ v1.0.0-DEV `https://github.com/singularitti/NsightCompute.jl#main` [loaded: `/home/runner/work/NsightCompute.jl/NsightCompute.jl/src/NsightCompute.jl` (v1.0.0-DEV) expected `/home/runner/.julia/packages/NsightCompute/0LngZ/src/NsightCompute.jl` (v1.0.0-DEV)]</span>
 <span class="sgr32"><span class="sgr1">Precompiling</span></span> packages...
-   1859.8 ms<span class="sgr33">  ✓ </span>NsightCompute
-  1 dependency successfully precompiled in 2 seconds. 88 already precompiled.
-  <span class="sgr33">1</span> dependency precompiled but <span class="sgr33">a different version is currently loaded</span>. Restart julia to access the new version. Otherwise, loading dependents of this package may trigger further precompilation to work with the unexpected version.</code></pre><p>in the second step above.</p><h2 id="Update-the-package"><a class="docs-heading-anchor" href="#Update-the-package">Update the package</a><a id="Update-the-package-1"></a><a class="docs-heading-anchor-permalink" href="#Update-the-package" title="Permalink"></a></h2><p>Please <a href="https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository">watch</a> our <a href="https://github.com/singularitti/NsightCompute.jl">GitHub repository</a> for new releases. Once we release a new version, you can update NsightCompute by typing</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using Pkg</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.update(&quot;NsightCompute&quot;)</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr32"><span class="sgr1">    Updating</span></span> registry at `~/.julia/registries/General.toml`
+            <span class="sgr91">  ✗ </span>NsightCompute
+  0 dependencies successfully precompiled in 2 seconds. 88 already precompiled.
+
+The following 1 direct dependency failed to precompile:
+
+NsightCompute 
+
+Failed to precompile NsightCompute [5f16bdfc-5065-4f60-a755-c8949118381f] to &quot;/home/runner/.julia/compiled/v1.12/NsightCompute/jl_E34Uw7&quot;.
+<span class="sgr91"><span class="sgr1">ERROR: </span></span>LoadError: UndefVarError: `DataFrame` not defined in `NsightCompute.Roofline`
+Suggestion: check for spelling errors or missing imports.
+Hint: a global variable of this name also exists in DataFrames.
+Stacktrace:
+  [1] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/Roofline/<span class="sgr4">flops.jl:44</span></span>
+  [2] <span class="sgr1">include(</span><span class="sgr90">mapexpr</span>::Function, <span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:307</span></span>
+  [3] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/Roofline/<span class="sgr4">Roofline.jl:3</span></span>
+  [4] <span class="sgr1">include(</span><span class="sgr90">mapexpr</span>::Function, <span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:307</span></span>
+  [5] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/<span class="sgr4">NsightCompute.jl:5</span></span>
+  [6] <span class="sgr1">include(</span><span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:306</span></span>
+  [7] <span class="sgr1">include_package_for_output(</span><span class="sgr90">pkg</span>::Base.PkgId, <span class="sgr90">input</span>::String, <span class="sgr90">depot_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">dl_load_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">load_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">concrete_deps</span>::Vector<span class="sgr90">{Pair{Base.PkgId, UInt128}}</span>, <span class="sgr90">source</span>::Nothing<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">loading.jl:3024</span></span>
+  [8] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90"><span class="sgr4">stdin:5</span></span>
+  [9] <span class="sgr1">eval(</span><span class="sgr90">m</span>::Module, <span class="sgr90">e</span>::Any<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Core</span> <span class="sgr90">./<span class="sgr4">boot.jl:489</span></span>
+ [10] <span class="sgr1">include_string(</span><span class="sgr90">mapexpr</span>::typeof(identity), <span class="sgr90">mod</span>::Module, <span class="sgr90">code</span>::String, <span class="sgr90">filename</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">loading.jl:2870</span></span>
+ [11] <span class="sgr1">include_string</span>
+<span class="sgr90">    @</span> <span class="sgr90">./<span class="sgr4">loading.jl:2880</span> [inlined]</span>
+ [12] <span class="sgr1">exec_options(</span><span class="sgr90">opts</span>::Base.JLOptions<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">client.jl:315</span></span>
+ [13] <span class="sgr1">_start()</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">client.jl:550</span></span>
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/Roofline/flops.jl:44
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/Roofline/Roofline.jl:1
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/NsightCompute.jl:1
+in expression starting at stdin:</code></pre><p>in the second step above.</p><h2 id="Update-the-package"><a class="docs-heading-anchor" href="#Update-the-package">Update the package</a><a id="Update-the-package-1"></a><a class="docs-heading-anchor-permalink" href="#Update-the-package" title="Permalink"></a></h2><p>Please <a href="https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository">watch</a> our <a href="https://github.com/singularitti/NsightCompute.jl">GitHub repository</a> for new releases. Once we release a new version, you can update NsightCompute by typing</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using Pkg</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.update(&quot;NsightCompute&quot;)</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr32"><span class="sgr1">    Updating</span></span> registry at `~/.julia/registries/General.toml`
 <span class="sgr32"><span class="sgr1">    Updating</span></span> git-repo `https://github.com/singularitti/NsightCompute.jl`
 <span class="sgr36"><span class="sgr1">     Project</span></span> No packages added to or removed from `~/work/NsightCompute.jl/NsightCompute.jl/docs/Project.toml`
-<span class="sgr36"><span class="sgr1">    Manifest</span></span> No packages added to or removed from `~/work/NsightCompute.jl/NsightCompute.jl/docs/Manifest.toml`</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.gc()</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr32"><span class="sgr1">      Active</span></span> manifest files: 3 found
+<span class="sgr36"><span class="sgr1">    Manifest</span></span> No packages added to or removed from `~/work/NsightCompute.jl/NsightCompute.jl/docs/Manifest.toml`
+<span class="sgr32"><span class="sgr1">Precompiling</span></span> packages...
+            <span class="sgr91">  ✗ </span>NsightCompute
+  0 dependencies successfully precompiled in 2 seconds. 88 already precompiled.
+
+The following 1 direct dependency failed to precompile:
+
+NsightCompute 
+
+Failed to precompile NsightCompute [5f16bdfc-5065-4f60-a755-c8949118381f] to &quot;/home/runner/.julia/compiled/v1.12/NsightCompute/jl_MyBnF7&quot;.
+<span class="sgr91"><span class="sgr1">ERROR: </span></span>LoadError: UndefVarError: `DataFrame` not defined in `NsightCompute.Roofline`
+Suggestion: check for spelling errors or missing imports.
+Hint: a global variable of this name also exists in DataFrames.
+Stacktrace:
+  [1] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/Roofline/<span class="sgr4">flops.jl:44</span></span>
+  [2] <span class="sgr1">include(</span><span class="sgr90">mapexpr</span>::Function, <span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:307</span></span>
+  [3] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/Roofline/<span class="sgr4">Roofline.jl:3</span></span>
+  [4] <span class="sgr1">include(</span><span class="sgr90">mapexpr</span>::Function, <span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:307</span></span>
+  [5] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90">~/.julia/packages/NsightCompute/0LngZ/src/<span class="sgr4">NsightCompute.jl:5</span></span>
+  [6] <span class="sgr1">include(</span><span class="sgr90">mod</span>::Module, <span class="sgr90">_path</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">Base.jl:306</span></span>
+  [7] <span class="sgr1">include_package_for_output(</span><span class="sgr90">pkg</span>::Base.PkgId, <span class="sgr90">input</span>::String, <span class="sgr90">depot_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">dl_load_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">load_path</span>::Vector<span class="sgr90">{String}</span>, <span class="sgr90">concrete_deps</span>::Vector<span class="sgr90">{Pair{Base.PkgId, UInt128}}</span>, <span class="sgr90">source</span>::Nothing<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">loading.jl:3024</span></span>
+  [8] top-level scope
+<span class="sgr90">    @</span> <span class="sgr90"><span class="sgr4">stdin:5</span></span>
+  [9] <span class="sgr1">eval(</span><span class="sgr90">m</span>::Module, <span class="sgr90">e</span>::Any<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Core</span> <span class="sgr90">./<span class="sgr4">boot.jl:489</span></span>
+ [10] <span class="sgr1">include_string(</span><span class="sgr90">mapexpr</span>::typeof(identity), <span class="sgr90">mod</span>::Module, <span class="sgr90">code</span>::String, <span class="sgr90">filename</span>::String<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">loading.jl:2870</span></span>
+ [11] <span class="sgr1">include_string</span>
+<span class="sgr90">    @</span> <span class="sgr90">./<span class="sgr4">loading.jl:2880</span> [inlined]</span>
+ [12] <span class="sgr1">exec_options(</span><span class="sgr90">opts</span>::Base.JLOptions<span class="sgr1">)</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">client.jl:315</span></span>
+ [13] <span class="sgr1">_start()</span>
+<span class="sgr90">    @</span> <span class="sgr90">Base</span> <span class="sgr90">./<span class="sgr4">client.jl:550</span></span>
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/Roofline/flops.jl:44
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/Roofline/Roofline.jl:1
+in expression starting at /home/runner/.julia/packages/NsightCompute/0LngZ/src/NsightCompute.jl:1
+in expression starting at stdin:</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; Pkg.gc()</code><code class="nohighlight hljs ansi" style="display:block;"><span class="sgr32"><span class="sgr1">      Active</span></span> manifest files: 3 found
 <span class="sgr32"><span class="sgr1">      Active</span></span> artifact files: 5 found
 <span class="sgr32"><span class="sgr1">      Active</span></span> scratchspaces: 0 found
 <span class="sgr32"><span class="sgr1">     Deleted</span></span> no artifacts, repos, packages or scratchspaces</code></pre><p>in the Julia REPL.</p><h2 id="Uninstall-and-then-reinstall-the-package"><a class="docs-heading-anchor" href="#Uninstall-and-then-reinstall-the-package">Uninstall and then reinstall the package</a><a id="Uninstall-and-then-reinstall-the-package-1"></a><a class="docs-heading-anchor-permalink" href="#Uninstall-and-then-reinstall-the-package" title="Permalink"></a></h2><p>Errors may occur if the package is improperly installed. In this case, you may want to uninstall and reinstall the package. Here is how to do that:</p><ol><li><p>To uninstall, in a Julia session, run</p><pre><code class="language-julia-repl hljs">julia&gt; using Pkg
 
 julia&gt; Pkg.rm(&quot;NsightCompute&quot;)
 
-julia&gt; Pkg.gc()</code></pre></li><li><p>Press <code>Ctrl+D</code> to quit the current session. Start a new Julia session and reinstall NsightCompute.</p></li></ol></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 24 November 2025 18:12">Monday 24 November 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+julia&gt; Pkg.gc()</code></pre></li><li><p>Press <code>Ctrl+D</code> to quit the current session. Start a new Julia session and reinstall NsightCompute.</p></li></ol></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Sunday 11 January 2026 12:23">Sunday 11 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
