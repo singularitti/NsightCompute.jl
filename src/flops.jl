@@ -14,7 +14,9 @@ function compute_flops(data::DataFrame)
     inst_dmul = data[
         :, "smsp__sass_thread_inst_executed_op_dmul_pred_on.sum.per_cycle_elapsed"
     ]
-    inst_dfma = data[:, "derived__smsp__sass_thread_inst_executed_op_dfma_pred_on_x2"]
+    inst_dfma =
+        data[:, "smsp__sass_thread_inst_executed_op_dfma_pred_on.sum.per_cycle_elapsed"] .*
+        2
     # Single precision
     inst_fadd = data[
         :, "smsp__sass_thread_inst_executed_op_fadd_pred_on.sum.per_cycle_elapsed"
@@ -22,35 +24,89 @@ function compute_flops(data::DataFrame)
     inst_fmul = data[
         :, "smsp__sass_thread_inst_executed_op_fmul_pred_on.sum.per_cycle_elapsed"
     ]
-    inst_ffma = data[:, "derived__smsp__sass_thread_inst_executed_op_ffma_pred_on_x2"]
+    inst_ffma =
+        data[:, "smsp__sass_thread_inst_executed_op_ffma_pred_on.sum.per_cycle_elapsed"] .*
+        2
+    inst_fadd2 =
+        safe_column(
+            data[
+                :, "smsp__sass_thread_inst_executed_op_fadd2_pred_on.sum.per_cycle_elapsed"
+            ],
+        ) .* 2
+    inst_fmul2 =
+        safe_column(
+            data[
+                :, "smsp__sass_thread_inst_executed_op_fmul2_pred_on.sum.per_cycle_elapsed"
+            ],
+        ) .* 2
+    inst_ffma2 =
+        safe_column(
+            data[
+                :, "smsp__sass_thread_inst_executed_op_ffma2_pred_on.sum.per_cycle_elapsed"
+            ],
+        ) .* 4
     # Half precision
-    inst_hadd = safe_column(
-        data[:, "derived__smsp__sass_thread_inst_executed_op_hadd_pred_on_x2"]
+    inst_hadd =
+        safe_column(
+            data[:, "smsp__sass_thread_inst_executed_op_hadd_pred_on.sum.per_cycle_elapsed"]
+        ) .* 2
+    inst_hmul =
+        safe_column(
+            data[:, "smsp__sass_thread_inst_executed_op_hmul_pred_on.sum.per_cycle_elapsed"]
+        ) .* 2
+    inst_hfma =
+        safe_column(
+            data[:, "smsp__sass_thread_inst_executed_op_hfma_pred_on.sum.per_cycle_elapsed"]
+        ) .* 4
+    # Tensor core (from raw tensor metrics)
+    # Standard precisions
+    tc_fp64 = safe_column(data[:, "sm__ops_path_tensor_src_fp64.sum.per_cycle_elapsed"])
+    tc_tf32 = safe_column(
+        data[:, "sm__ops_path_tensor_src_tf32_dst_fp32.sum.per_cycle_elapsed"]
     )
-    inst_hmul = safe_column(
-        data[:, "derived__smsp__sass_thread_inst_executed_op_hmul_pred_on_x2"]
+    tc_bf16 = safe_column(
+        data[:, "sm__ops_path_tensor_src_bf16_dst_fp32.sum.per_cycle_elapsed"]
     )
-    inst_hfma = safe_column(
-        data[:, "derived__smsp__sass_thread_inst_executed_op_hfma_pred_on_x4"]
+    tc_fp16 = safe_column(data[:, "sm__ops_path_tensor_src_fp16.sum.per_cycle_elapsed"])  # Aggregate covering dst_fp16 & dst_fp32
+    # Integer precisions
+    tc_int1 = safe_column(data[:, "sm__ops_path_tensor_src_int1.sum.per_cycle_elapsed"])
+    tc_int4 = safe_column(data[:, "sm__ops_path_tensor_src_int4.sum.per_cycle_elapsed"])
+    tc_int8 = safe_column(data[:, "sm__ops_path_tensor_src_int8.sum.per_cycle_elapsed"])
+    # FP8
+    tc_fp8_off = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp8_sparsity_off.sum.per_cycle_elapsed"]
     )
-    # Tensor Core (from raw tensor metrics)
-    tc_bf16 = data[:, "sm__ops_path_tensor_src_bf16_dst_fp32.sum.per_cycle_elapsed"]
-    tc_fp16 = data[:, "sm__ops_path_tensor_src_fp16.sum.per_cycle_elapsed"]
-    tc_fp64 = data[:, "sm__ops_path_tensor_src_fp64.sum.per_cycle_elapsed"]
-    tc_fp8_off = data[:, "sm__ops_path_tensor_src_fp8_sparsity_off.sum.per_cycle_elapsed"]
-    tc_fp8_on = data[:, "sm__ops_path_tensor_src_fp8_sparsity_on.sum.per_cycle_elapsed"]
-    tc_int1 = data[:, "sm__ops_path_tensor_src_int1.sum.per_cycle_elapsed"]
-    tc_int8 = data[:, "sm__ops_path_tensor_src_int8.sum.per_cycle_elapsed"]
-    tc_tf32 = data[:, "sm__ops_path_tensor_src_tf32_dst_fp32.sum.per_cycle_elapsed"]
-    # Calculate FLOPs per category
-    FLOPS_double_precision = (inst_dfma .+ inst_dadd .+ inst_dmul) .* gpu_freq_hz
-    FLOPS_single_precision = (inst_ffma .+ inst_fadd .+ inst_fmul) .* gpu_freq_hz
+    tc_fp8_on = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp8_sparsity_on.sum.per_cycle_elapsed"]
+    )
+    # FP4 & Mixed precision
+    tc_fp4 = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp4_dst_fp32.sum.per_cycle_elapsed"]
+    )
+    tc_fp4_fp6_16 = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp4_fp6_dst_fp16.sum.per_cycle_elapsed"]
+    )
+    tc_fp4_fp6_32 = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp4_fp6_dst_fp32.sum.per_cycle_elapsed"]
+    )
+    tc_fp4_fp6_fp8_16 = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp4_fp6_fp8_dst_fp16.sum.per_cycle_elapsed"]
+    )
+    tc_fp4_fp6_fp8_32 = safe_column(
+        data[:, "sm__ops_path_tensor_src_fp4_fp6_fp8_dst_fp32.sum.per_cycle_elapsed"]
+    )
+    # Summation
+    FLOPS_double_precision = (inst_dadd .+ inst_dmul .+ inst_dfma) .* gpu_freq_hz
+    FLOPS_single_precision =
+        (inst_fadd .+ inst_fmul .+ inst_ffma .+ inst_fadd2 .+ inst_fmul2 .+ inst_ffma2) .*
+        gpu_freq_hz
     FLOPS_half_precision = (inst_hadd .+ inst_hmul .+ inst_hfma) .* gpu_freq_hz
     FLOPS_tensor_core =
         (
-            tc_bf16 .+ tc_fp16 .+ tc_fp64 .+ tc_fp8_off .+ tc_fp8_on .+ tc_int1 .+
-            tc_int8 .+ tc_tf32
-        ) .* gpu_freq_hz  # It should be `sm__cycles_elapsed.avg.per_second` but it's equal to `gpu_freq_hz`
+            tc_fp64 .+ tc_tf32 .+ tc_bf16 .+ tc_fp16 .+ tc_int1 .+ tc_int4 .+ tc_int8 .+
+            tc_fp8_off .+ tc_fp8_on .+ tc_fp4 .+ tc_fp4_fp6_16 .+ tc_fp4_fp6_32 .+
+            tc_fp4_fp6_fp8_16 .+ tc_fp4_fp6_fp8_32
+        ) .* gpu_freq_hz
     FLOPS_total =
         FLOPS_double_precision .+ FLOPS_single_precision .+ FLOPS_half_precision .+
         FLOPS_tensor_core
