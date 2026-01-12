@@ -40,8 +40,24 @@ const METRIC_FACTORS = (
     ),
 )
 
+"""
+    compute_flops(table)
+
+Compute per-category and total FLOPS from an Nsight Compute metrics table.
+
+# Arguments
+- `table`: a Tables-compatible table (rows or columnar) containing Nsight
+  metric columns.
+
+# Returns
+A `NamedTuple` containing per-row vectors with the following fields:
+- `FLOPS_double_precision`
+- `FLOPS_single_precision`
+- `FLOPS_half_precision`
+- `FLOPS_tensor_core`
+- `FLOPS_total`
+"""
 function compute_flops(table)
-    # Helpers: load a metric (apply its factor) and sum all metrics inside a group.
     @assert istable(table)
     n = length(Tables.rows(table))
     _load_metric((name, factor)) =
