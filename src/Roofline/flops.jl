@@ -1,4 +1,3 @@
-using CSV: File
 using Tables: Tables
 
 export compute_flops
@@ -72,8 +71,6 @@ function compute_flops(table)
         FLOPS_total=FLOPS_total,
     )
 end
-compute_flops(filepath::String) =
-    compute_flops(DataFrame(File(filepath; header=1, skipto=3)))
 
 function safe_column(col)
     if eltype(col) <: AbstractString
