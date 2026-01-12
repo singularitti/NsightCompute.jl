@@ -1,4 +1,4 @@
-using Tables: Tables
+using Tables: Tables, columnnames, istable
 
 export compute_flops
 
@@ -42,9 +42,10 @@ const METRIC_FACTORS = (
 
 function compute_flops(table)
     # Helpers: load a metric (apply its factor) and sum all metrics inside a group.
+    @assert istable(table)
     n = length(Tables.rows(table))
     _load_metric((name, factor)) =
-        (name in names(table)) ? safe_column(table[:, name]) .* factor : zeros(n)
+        (name in columnnames(table)) ? safe_column(table[:, name]) .* factor : zeros(n)
     function _sum_group(group::Symbol)
         s = zeros(n)
         grp = getfield(METRIC_FACTORS, group)
