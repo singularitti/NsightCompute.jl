@@ -1,4 +1,4 @@
-using Tables: Tables, columnnames, istable
+using Tables: Tables, columnnames, getcolumn, istable
 
 export compute_flops
 
@@ -60,8 +60,13 @@ A `NamedTuple` containing per-row vectors with the following fields:
 function compute_flops(table)
     @assert istable(table)
     n = length(Tables.rows(table))
-    _load_metric((name, factor)) =
-        (name in columnnames(table)) ? safe_column(table[:, name]) .* factor : zeros(n)
+    function _load_metric((name, factor))
+        if name in columnnames(table)
+            safer_column(getcolumn(table, name)) .* factor
+        else
+            zeros(n)
+        end
+    end
     function _sum_group(group::Symbol)
         s = zeros(n)
         grp = getfield(METRIC_FACTORS, group)
