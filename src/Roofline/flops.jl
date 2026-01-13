@@ -46,7 +46,7 @@ const METRIC_FACTORS = (
 Compute per-category and total FLOPS from an Nsight Compute metrics table.
 
 # Arguments
-- `table`: a Tables-compatible table (rows or columnar) containing Nsight
+- `table`: a `Tables.jl`-compatible table (rows or columnar) containing Nsight
   metric columns.
 
 # Returns
@@ -68,13 +68,13 @@ function compute_flops(table)
         end
         return s
     end
-    frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency in Hz
-    # Compute FLOPS per category by summing metrics in each group then multiplying by frequency
+    frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency (Hz)
+    # Calculate FLOPS per category (sum of metrics * frequency)
     FLOPS_double_precision = _sum_group(:double_precision) .* frequency_hz
     FLOPS_single_precision = _sum_group(:single_precision) .* frequency_hz
     FLOPS_half_precision = _sum_group(:half_precision) .* frequency_hz
     FLOPS_tensor_core = _sum_group(:tensor_core) .* frequency_hz
-    # Final total (per-category FLOPS are computed above)
+    # Total FLOPS
     FLOPS_total =
         FLOPS_double_precision .+ FLOPS_single_precision .+ FLOPS_half_precision .+
         FLOPS_tensor_core
@@ -87,19 +87,21 @@ function compute_flops(table)
     )
 end
 
-_nrows(table) = length(rows(table))
+_nrows(table) = length(rows(table))  # Number of rows
 
+# Index of the column matching the name
 function _locatename(name, table)
     indices = findall(startswith(name), string.(columnnames(table)))
     if isempty(indices)  # Name not found
         return nothing
     end
-    return only(indices)  # Also errors if multiple indices were found
+    return only(indices)  # Errors if multiple matches found
 end
 
+# Load metric column and apply scaling factor
 function _load_metric(table, (name, factor))
     index = _locatename(name, table)
-    if isnothing(index)  # Did not find the corresponding column
+    if isnothing(index)  # Column not found
         return zeros(_nrows(table))
     else
         return _safer_column(getcolumn(table, index)) .* factor
