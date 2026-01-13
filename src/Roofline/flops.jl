@@ -102,11 +102,12 @@ function _load_metric(table, (name, factor))
     if isnothing(index)  # Did not find the corresponding column
         return zeros(_nrows(table))
     else
-        return safer_column(getcolumn(table, index)) .* factor
+        return _safer_column(getcolumn(table, index)) .* factor
     end
 end
 
-function safer_column(col)
+# Convert to Float64, handling "no data" and missing values
+function _safer_column(col)
     if eltype(col) <: AbstractString
         return [v == "no data" ? 0.0 : parse(Float64, v) for v in col]
     else
