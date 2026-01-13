@@ -1,4 +1,4 @@
-using Tables: Tables, columnnames, getcolumn, istable
+using Tables: columnnames, getcolumn, istable, rows
 
 export compute_flops
 
@@ -59,23 +59,16 @@ A `NamedTuple` containing per-row vectors with the following fields:
 """
 function compute_flops(table)
     @assert istable(table)
-    n = length(Tables.rows(table))
-    function _load_metric((name, factor))
-        if name in columnnames(table)
-            safer_column(getcolumn(table, name)) .* factor
-        else
-            zeros(n)
-        end
-    end
+    n = _nrows(table)
     function _sum_group(group::Symbol)
         s = zeros(n)
         grp = getfield(METRIC_FACTORS, group)
         for (name, factor) in grp
-            s .+= _load_metric((name, factor))
+            s .+= _load_metric(table, (name, factor))
         end
         return s
     end
-    frequency_hz = _load_metric(METRIC_FACTORS.frequency)  # Frequency in Hz
+    frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency in Hz
     # Compute FLOPS per category by summing metrics in each group then multiplying by frequency
     FLOPS_double_precision = _sum_group(:double_precision) .* frequency_hz
     FLOPS_single_precision = _sum_group(:single_precision) .* frequency_hz
@@ -92,6 +85,18 @@ function compute_flops(table)
         FLOPS_tensor_core=FLOPS_tensor_core,
         FLOPS_total=FLOPS_total,
     )
+end
+
+_nrows(table) = length(rows(table))
+
+is_name_in(name, table) = any(startswith(name), string.(columnnames(table)))
+
+function _load_metric(table, (name, factor))
+    if is_name_in(name, table)
+        return safer_column(getcolumn(table, name)) .* factor
+    else
+        return zeros(_nrows(table))
+    end
 end
 
 function safer_column(col)
