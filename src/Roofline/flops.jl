@@ -89,7 +89,7 @@ function compute_flops(table)
     )
 end
 
-function safe_column(col)
+function safer_column(col)
     if eltype(col) <: AbstractString
         return [v == "no data" ? 0.0 : parse(Float64, v) for v in col]
     else
