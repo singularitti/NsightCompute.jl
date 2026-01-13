@@ -89,13 +89,14 @@ end
 
 _nrows(table) = length(rows(table))
 
-is_name_in(name, table) = any(startswith(name), string.(columnnames(table)))
+findname(name, table) = findfirst(startswith(name), string.(columnnames(table)))
 
 function _load_metric(table, (name, factor))
-    if is_name_in(name, table)
-        return safer_column(getcolumn(table, name)) .* factor
-    else
+    index = findname(name, table)
+    if isnothing(index)  # Did not find the corresponding column
         return zeros(_nrows(table))
+    else
+        return safer_column(getcolumn(table, index)) .* factor
     end
 end
 
