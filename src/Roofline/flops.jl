@@ -89,10 +89,16 @@ end
 
 _nrows(table) = length(rows(table))
 
-findname(name, table) = findfirst(startswith(name), string.(columnnames(table)))
+function _locatename(name, table)
+    indices = findall(startswith(name), string.(columnnames(table)))
+    if isempty(indices)  # Name not found
+        return nothing
+    end
+    return only(indices)  # Also errors if multiple indices were found
+end
 
 function _load_metric(table, (name, factor))
-    index = findname(name, table)
+    index = _locatename(name, table)
     if isnothing(index)  # Did not find the corresponding column
         return zeros(_nrows(table))
     else
