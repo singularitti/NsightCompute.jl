@@ -33,7 +33,7 @@ function compute_ai(table)
     @assert istable(table)
     # Get FLOPS vectors per category
     flops = compute_flops(table)
-    DRAM_bandwidth = _load_metric(table, ("dram__bytes.sum.per_second", 10^12))
+    DRAM_bandwidth = _load_metric(table, ("dram__bytes.sum.per_second", 10^12))  # Bandwidth in TB/s
     AI_double_precision = _safe_div(flops.FLOPS_double_precision, DRAM_bandwidth)
     AI_single_precision = _safe_div(flops.FLOPS_single_precision, DRAM_bandwidth)
     AI_half_precision = _safe_div(flops.FLOPS_half_precision, DRAM_bandwidth)
