@@ -37,7 +37,6 @@ function compute_ai(table)
     AI_double_precision = _safe_div(flops.FLOPS_double_precision, DRAM_bandwidth)
     AI_single_precision = _safe_div(flops.FLOPS_single_precision, DRAM_bandwidth)
     AI_half_precision = _safe_div(flops.FLOPS_half_precision, DRAM_bandwidth)
-    AI_tensor_core = _safe_div(flops.FLOPS_tensor_core, DRAM_bandwidth)
     # Compute AI_total per-row as the maximum across categories using
     # `maximum` on each zipped tuple of category AIs.
     AI_total = maximum.(zip(AI_double_precision, AI_single_precision, AI_half_precision))
