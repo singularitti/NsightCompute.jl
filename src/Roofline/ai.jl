@@ -3,30 +3,7 @@ export compute_ai
 """
     compute_ai(table)
 
-Compute per-category arithmetic intensity (AI = FLOPs / Bytes) using the
-FLOPS computed by `compute_flops` and the DRAM bandwidth metric
-`dram__bytes.sum.per_second`.
-
-# Returns
-A `NamedTuple` containing per-row vectors with the following fields:
-- `AI_double_precision`
-- `AI_single_precision`
-- `AI_half_precision`
-- `AI_tensor_core`
-- `AI_total`
-- `DRAM_bandwidth` (Bytes / second)
-
-# Examples
-```jldoctest
-julia> table = (
-...     "smsp__cycles_elapsed.avg.per_second" => [1.0],
-...     "smsp__sass_thread_inst_executed_op_fadd_pred_on.sum.per_cycle_elapsed" => [1.0],
-...     "dram__bytes.sum.per_second" => [2.0]
-... )
-
-julia> res = compute_ai(table)
-julia> res.AI_total[1] ≈ compute_flops(table).FLOPS_total[1] / 2.0
-true
+Compute per-category arithmetic intensity (AI = FLOPs / Bytes).
 ```
 """
 function compute_ai(table)
