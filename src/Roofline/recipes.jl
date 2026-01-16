@@ -87,3 +87,78 @@ end
         end
     end
 end
+
+@userplot FlopsPercentagePlot
+@recipe function f(plot::FlopsPercentagePlot)
+    xlabel --> "step"
+    ylabel --> raw"percentage (%)"
+    ylims --> (0, 100)
+    table = only(plot.args)
+    flops = compute_flops(table)
+    n = _nrows(table)
+    steps = 1:n
+    xlims --> extrema(steps)
+
+    types = (
+        (:FLOPS_double_precision, "double"),
+        (:FLOPS_single_precision, "single"),
+        (:FLOPS_half_precision, "half"),
+        (:FLOPS_tensor_core, "tensor"),
+    )
+    # collect numeric values and compute per-step denominators
+    denom = zeros(n)
+    vals_map = Dict{Symbol,Vector{Float64}}()
+    for (sym, _) in types
+        if hasproperty(flops, sym)
+            v = float.(coalesce.(getproperty(flops, sym), 0.0))
+            vals_map[sym] = v
+            denom .+= v
+        end
+    end
+    if all(iszero, denom)
+        return nothing
+    end
+    # compute percentage vectors per category
+    perc_map = Dict{Symbol,Vector{Float64}}()
+    for (sym, _) in types
+        if haskey(vals_map, sym)
+            v = vals_map[sym]
+            perc = zeros(n)
+            nz = denom .> 0
+            perc[nz] .= 100 .* v[nz] ./ denom[nz]
+            perc_map[sym] = perc
+        end
+    end
+    # stack and plot categories
+    cumulative = zeros(n)
+    j = 1
+    for (sym, label) in types
+        if haskey(perc_map, sym)
+            perc = perc_map[sym]
+            top = cumulative .+ perc
+            @series begin
+                seriestype --> :path
+                label --> label
+                color --> j
+                fillrange --> cumulative
+                fillalpha --> 0.6
+                steps, top
+            end
+            cumulative = top
+            j += 1
+        end
+    end
+    # fill any remaining percentage with `none` (e.g., when denom == 0)
+    rem = 100 .- cumulative
+    if any(rem .> 0)
+        top = cumulative .+ rem
+        @series begin
+            seriestype --> :path
+            label --> "none"
+            color --> j
+            fillrange --> cumulative
+            fillalpha --> 0.6
+            steps, top
+        end
+    end
+end
