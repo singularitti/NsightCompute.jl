@@ -5,7 +5,7 @@ using RecipesBase: @recipe, @series, @userplot
     xscale --> :log10
     yscale --> :log10
     xlabel --> raw"arithmetic intensity (FLOP/byte)"
-    ylabel --> raw"performance (TFLOP / s)"
+    ylabel --> raw"performance (TFLOP/s)"
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
     table = only(plot.args)
     # compute AI and achieved performance from the table
@@ -32,4 +32,36 @@ using RecipesBase: @recipe, @series, @userplot
             end
         end
     end
+end
+
+@userplot FlopsPlot
+@recipe function f(plot::FlopsPlot)
+    xlabel --> "step"
+    ylabel --> raw"performance (TFLOP/s)"
+    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
+    table = only(plot.args)
+    flops = compute_flops(table)
+    steps = 1:_nrows(table)
+    xlims --> extrema(steps)
+    types = (
+        (:FLOPS_double_precision, "double"),
+        (:FLOPS_single_precision, "single"),
+        (:FLOPS_half_precision, "half"),
+        (:FLOPS_tensor_core, "tensor"),
+        (:FLOPS_total, "total"),
+    )
+    for (sym, label) in types
+        if hasproperty(flops, sym)
+            vals = getproperty(flops, sym)
+            @series begin
+                seriestype --> :path
+                label --> label
+                fillrange --> zeros(length(vals))
+                fillalpha --> 0.1
+                z_order := :back
+                steps, vals
+            end
+        end
+    end
+    return nothing
 end
