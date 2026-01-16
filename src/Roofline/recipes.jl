@@ -39,10 +39,13 @@ end
     xlabel --> "step"
     ylabel --> raw"performance (TFLOP/s)"
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
+    fillalpha --> 0.2
+    z_order := :back
     table = only(plot.args)
     flops = compute_flops(table)
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
+    ylims --> (0, :auto)
     types = (
         (:FLOPS_double_precision, "double"),
         (:FLOPS_single_precision, "single"),
@@ -50,54 +53,37 @@ end
         (:FLOPS_tensor_core, "tensor"),
         (:FLOPS_total, "total"),
     )
-    for (sym, label) in types
-        if hasproperty(flops, sym)
-            vals = getproperty(flops, sym)
-            @series begin
-                seriestype --> :path
-                label --> label
-                fillrange --> zeros(length(vals))
-                fillalpha --> 0.1
-                z_order := :back
-                steps, vals
+    stacked = get(plotattributes, :stacked, false)
+    if stacked
+        n = length(steps)
+        cumulative = zeros(n)
+        for (sym, label) in types
+            if sym == :FLOPS_total
+                continue  # Skip total when stacking
+            end
+            if hasproperty(flops, sym)
+                vals = coalesce.(getproperty(flops, sym), 0.0)
+                top = cumulative .+ vals
+                @series begin
+                    seriestype --> :path
+                    label --> label
+                    fillrange --> cumulative
+                    steps, top
+                end
+                cumulative = top
             end
         end
-    end
-    return nothing
-end
-
-@userplot StackedFlopsPlot
-@recipe function f(plot::StackedFlopsPlot)
-    xlabel --> "step"
-    ylabel --> raw"performance (TFLOP/s)"
-    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))
-    table = only(plot.args)
-    flops = compute_flops(table)
-    types = (
-        (:FLOPS_double_precision, "double"),
-        (:FLOPS_single_precision, "single"),
-        (:FLOPS_half_precision, "half"),
-        (:FLOPS_tensor_core, "tensor"),
-    )
-    n = _nrows(table)
-    steps = 1:n
-    xlims --> extrema(steps)
-    cumulative = zeros(n)
-    for (sym, label) in types
-        if hasproperty(flops, sym)
-            vals = getproperty(flops, sym)
-            # ensure numeric array and non-negative
-            vals = coalesce.(vals, 0.0)
-            top = cumulative .+ vals
-            @series begin
-                seriestype --> :path
-                label --> label
-                fillrange --> cumulative
-                fillalpha --> 0.1
-                z_order := :back
-                steps, top
+    else
+        for (sym, label) in types
+            if hasproperty(flops, sym)
+                vals = getproperty(flops, sym)
+                @series begin
+                    seriestype --> :path
+                    label --> label
+                    fillrange --> zeros(length(vals))
+                    steps, vals
+                end
             end
-            cumulative = top
         end
     end
 end
