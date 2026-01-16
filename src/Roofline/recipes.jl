@@ -5,8 +5,9 @@ using RecipesBase: @recipe, @series, @userplot
     xscale --> :log10
     yscale --> :log10
     xlabel --> raw"arithmetic intensity (FLOP/byte)"
-    ylabel --> raw"performance (FLOP/s)"
-    table = plot.args[1]
+    ylabel --> raw"performance (TFLOP / s)"
+    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
+    table = only(plot.args)
     # compute AI and achieved performance from the table
     ai_data = compute_ai(table)
     flops_data = compute_flops(table)
