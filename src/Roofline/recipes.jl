@@ -65,3 +65,39 @@ end
     end
     return nothing
 end
+
+@userplot StackedFlopsPlot
+@recipe function f(plot::StackedFlopsPlot)
+    xlabel --> "step"
+    ylabel --> raw"performance (TFLOP/s)"
+    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))
+    table = only(plot.args)
+    flops = compute_flops(table)
+    types = (
+        (:FLOPS_double_precision, "double"),
+        (:FLOPS_single_precision, "single"),
+        (:FLOPS_half_precision, "half"),
+        (:FLOPS_tensor_core, "tensor"),
+    )
+    n = _nrows(table)
+    steps = 1:n
+    xlims --> extrema(steps)
+    cumulative = zeros(n)
+    for (sym, label) in types
+        if hasproperty(flops, sym)
+            vals = getproperty(flops, sym)
+            # ensure numeric array and non-negative
+            vals = coalesce.(vals, 0.0)
+            top = cumulative .+ vals
+            @series begin
+                seriestype --> :path
+                label --> label
+                fillrange --> cumulative
+                fillalpha --> 0.1
+                z_order := :back
+                steps, top
+            end
+            cumulative = top
+        end
+    end
+end
