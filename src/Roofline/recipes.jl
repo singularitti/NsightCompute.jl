@@ -88,76 +88,79 @@ end
     end
 end
 
+# Helper: compute per-category percentage vectors and per-step totals
+function _compute_percentage_map(flops, categories, n)
+    total_per_step = zeros(n)
+    per_category_values = Dict{Symbol,Vector{Float64}}()
+    for (category_sym, _) in categories
+        if hasproperty(flops, category_sym)
+            values = coalesce.(getproperty(flops, category_sym), 0.0)
+            per_category_values[category_sym] = values
+            total_per_step .+= values
+        end
+    end
+    if all(iszero, total_per_step)
+        return Dict{Symbol,Vector{Float64}}(), total_per_step
+    end
+    per_category_percent = Dict{Symbol,Vector{Float64}}()
+    nonzero_mask = total_per_step .> zero(total_per_step)
+    for (category_sym, _) in categories
+        if haskey(per_category_values, category_sym)
+            values = per_category_values[category_sym]
+            percent = zeros(n)
+            percent[nonzero_mask] .=
+                100 .* values[nonzero_mask] ./ total_per_step[nonzero_mask]
+            per_category_percent[category_sym] = percent
+        end
+    end
+    return per_category_percent, total_per_step
+end
+
 @userplot FlopsPercentagePlot
 @recipe function f(plot::FlopsPercentagePlot)
     xlabel --> "step"
-    ylabel --> raw"percentage (%)"
+    ylabel --> raw"performance percentage (%)"
     ylims --> (0, 100)
+    fillalpha --> 0.6
+    linewidth --> 0
     table = only(plot.args)
     flops = compute_flops(table)
     n = _nrows(table)
     steps = 1:n
     xlims --> extrema(steps)
-
-    types = (
+    categories = (
         (:FLOPS_double_precision, "double"),
         (:FLOPS_single_precision, "single"),
         (:FLOPS_half_precision, "half"),
         (:FLOPS_tensor_core, "tensor"),
     )
-    # collect numeric values and compute per-step denominators
-    denom = zeros(n)
-    vals_map = Dict{Symbol,Vector{Float64}}()
-    for (sym, _) in types
-        if hasproperty(flops, sym)
-            v = float.(coalesce.(getproperty(flops, sym), 0.0))
-            vals_map[sym] = v
-            denom .+= v
-        end
-    end
-    if all(iszero, denom)
+    # Collect numeric values and compute per-step denominators using helper
+    per_category_percent, _ = _compute_percentage_map(flops, categories, n)
+    if isempty(per_category_percent)
         return nothing
     end
-    # compute percentage vectors per category
-    perc_map = Dict{Symbol,Vector{Float64}}()
-    for (sym, _) in types
-        if haskey(vals_map, sym)
-            v = vals_map[sym]
-            perc = zeros(n)
-            nz = denom .> 0
-            perc[nz] .= 100 .* v[nz] ./ denom[nz]
-            perc_map[sym] = perc
-        end
-    end
-    # stack and plot categories
-    cumulative = zeros(n)
-    j = 1
-    for (sym, label) in types
-        if haskey(perc_map, sym)
-            perc = perc_map[sym]
-            top = cumulative .+ perc
+    stacked_base = zeros(n)
+    for (category_sym, label) in categories
+        if haskey(per_category_percent, category_sym)
+            percent = per_category_percent[category_sym]
+            top = stacked_base .+ percent
             @series begin
                 seriestype --> :path
                 label --> label
-                color --> j
-                fillrange --> cumulative
-                fillalpha --> 0.6
+                fillrange --> stacked_base
                 steps, top
             end
-            cumulative = top
-            j += 1
+            stacked_base = top
         end
     end
-    # fill any remaining percentage with `none` (e.g., when denom == 0)
-    rem = 100 .- cumulative
-    if any(rem .> 0)
-        top = cumulative .+ rem
+    # Fill any remaining percentage with `none` (e.g., when denom == 0)
+    remainder_percent = 100 .- stacked_base
+    if any(remainder_percent .> 0)
+        top = stacked_base .+ remainder_percent
         @series begin
             seriestype --> :path
             label --> "none"
-            color --> j
-            fillrange --> cumulative
-            fillalpha --> 0.6
+            fillrange --> stacked_base
             steps, top
         end
     end
