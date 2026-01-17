@@ -88,6 +88,34 @@ end
     end
 end
 
+@userplot AiPlot
+@recipe function f(plot::AiPlot)
+    xlabel --> "step"
+    ylabel --> raw"arithmetic intensity (FLOP/byte)"
+    fillalpha --> 0.2
+    table = only(plot.args)
+    ai = compute_ai(table)
+    steps = 1:_nrows(table)
+    xlims --> extrema(steps)
+    ylims --> (0, :auto)
+    types = (
+        (:AI_double_precision, "double"),
+        (:AI_single_precision, "single"),
+        (:AI_half_precision, "half"),
+    )
+    for (name, label) in types
+        if hasproperty(ai, name)
+            vals = getproperty(ai, name)
+            @series begin
+                seriestype --> :path
+                label --> label
+                fillrange --> zeros(length(vals))
+                steps, vals
+            end
+        end
+    end
+end
+
 # Helper: compute per-category percentage vectors and per-step totals
 function _compute_percentage_map(flops, categories, n)
     total_per_step = zeros(n)
