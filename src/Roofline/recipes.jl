@@ -57,12 +57,12 @@ end
     if stacked
         n = length(steps)
         cumulative = zeros(n)
-        for (sym, label) in types
-            if sym == :FLOPS_total
+        for (name, label) in types
+            if name == :FLOPS_total
                 continue  # Skip total when stacking
             end
-            if hasproperty(flops, sym)
-                vals = coalesce.(getproperty(flops, sym), 0.0)
+            if hasproperty(flops, name)
+                vals = coalesce.(getproperty(flops, name), 0.0)
                 top = cumulative .+ vals
                 @series begin
                     seriestype --> :path
@@ -74,9 +74,9 @@ end
             end
         end
     else
-        for (sym, label) in types
-            if hasproperty(flops, sym)
-                vals = getproperty(flops, sym)
+        for (name, label) in types
+            if hasproperty(flops, name)
+                vals = getproperty(flops, name)
                 @series begin
                     seriestype --> :path
                     label --> label
@@ -92,10 +92,10 @@ end
 function _compute_percentage_map(flops, categories, n)
     total_per_step = zeros(n)
     per_category_values = Dict{Symbol,Vector{Float64}}()
-    for (category_sym, _) in categories
-        if hasproperty(flops, category_sym)
-            values = coalesce.(getproperty(flops, category_sym), 0.0)
-            per_category_values[category_sym] = values
+    for (category_name, _) in categories
+        if hasproperty(flops, category_name)
+            values = coalesce.(getproperty(flops, category_name), 0.0)
+            per_category_values[category_name] = values
             total_per_step .+= values
         end
     end
@@ -104,13 +104,13 @@ function _compute_percentage_map(flops, categories, n)
     end
     per_category_percent = Dict{Symbol,Vector{Float64}}()
     nonzero_mask = total_per_step .> zero(total_per_step)
-    for (category_sym, _) in categories
-        if haskey(per_category_values, category_sym)
-            values = per_category_values[category_sym]
+    for (category_name, _) in categories
+        if haskey(per_category_values, category_name)
+            values = per_category_values[category_name]
             percent = zeros(n)
             percent[nonzero_mask] .=
                 100 .* values[nonzero_mask] ./ total_per_step[nonzero_mask]
-            per_category_percent[category_sym] = percent
+            per_category_percent[category_name] = percent
         end
     end
     return per_category_percent, total_per_step
@@ -140,9 +140,9 @@ end
         return nothing
     end
     stacked_base = zeros(n)
-    for (category_sym, label) in categories
-        if haskey(per_category_percent, category_sym)
-            percent = per_category_percent[category_sym]
+    for (category_name, label) in categories
+        if haskey(per_category_percent, category_name)
+            percent = per_category_percent[category_name]
             top = stacked_base .+ percent
             @series begin
                 seriestype --> :path
