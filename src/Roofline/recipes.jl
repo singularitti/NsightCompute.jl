@@ -35,7 +35,7 @@ using RecipesBase: @recipe, @series, @userplot
 end
 
 @userplot FlopsPlot
-@recipe function f(plot::FlopsPlot)
+@recipe function f(plot::FlopsPlot; stacked=false)
     xlabel --> "step"
     ylabel --> raw"performance (TFLOP/s)"
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
@@ -53,7 +53,6 @@ end
         (:FLOPS_tensor_core, "tensor"),
         (:FLOPS_total, "total"),
     )
-    stacked = get(plotattributes, :stacked, false)
     if stacked
         n = length(steps)
         cumulative = zeros(n)
