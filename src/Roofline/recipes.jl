@@ -11,16 +11,16 @@ using RecipesBase: @recipe, @series, @userplot
     # compute AI and achieved performance from the table
     ai_data = compute_ai(table)
     flops_data = compute_flops(table)
-    # categories to plot: (AI field, FLOPS field, label)
-    types = (
+    # Categories to plot: (AI field, FLOPS field, label)
+    categories = (
         (:AI_double_precision, :FLOPS_double_precision, "double"),
         (:AI_single_precision, :FLOPS_single_precision, "single"),
         (:AI_half_precision, :FLOPS_half_precision, "half"),
     )
-    for (ai_type, flops_type, label) in types
-        if hasproperty(ai_data, ai_type) && hasproperty(flops_data, flops_type)
-            ai_datum = getproperty(ai_data, ai_type)
-            flops_datum = getproperty(flops_data, flops_type)
+    for (ai_name, flops_name, label) in categories
+        if hasproperty(ai_data, ai_name) && hasproperty(flops_data, flops_name)
+            ai_datum = getproperty(ai_data, ai_name)
+            flops_datum = getproperty(flops_data, flops_name)
             # filter positive values for log-log plot (infinite values are assumed impossible)
             mask = (ai_datum .> 0) .& (flops_datum .> 0)
             if any(mask)
@@ -46,7 +46,7 @@ end
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
     ylims --> (0, :auto)
-    types = (
+    categories = (
         (:FLOPS_double_precision, "double"),
         (:FLOPS_single_precision, "single"),
         (:FLOPS_half_precision, "half"),
@@ -56,12 +56,12 @@ end
     if stacked
         n = length(steps)
         cumulative = zeros(n)
-        for (name, label) in types
-            if name == :FLOPS_total
+        for (category_name, label) in categories
+            if category_name == :FLOPS_total
                 continue  # Skip total when stacking
             end
-            if hasproperty(flops, name)
-                vals = coalesce.(getproperty(flops, name), 0.0)
+            if hasproperty(flops, category_name)
+                vals = coalesce.(getproperty(flops, category_name), 0.0)
                 top = cumulative .+ vals
                 @series begin
                     seriestype --> :path
@@ -73,9 +73,9 @@ end
             end
         end
     else
-        for (name, label) in types
-            if hasproperty(flops, name)
-                vals = getproperty(flops, name)
+        for (category_name, label) in categories
+            if hasproperty(flops, category_name)
+                vals = getproperty(flops, category_name)
                 @series begin
                     seriestype --> :path
                     label --> label
@@ -97,14 +97,14 @@ end
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
     ylims --> (0, :auto)
-    types = (
+    categories = (
         (:AI_double_precision, "double"),
         (:AI_single_precision, "single"),
         (:AI_half_precision, "half"),
     )
-    for (name, label) in types
-        if hasproperty(ai, name)
-            vals = getproperty(ai, name)
+    for (category_name, label) in categories
+        if hasproperty(ai, category_name)
+            vals = getproperty(ai, category_name)
             @series begin
                 seriestype --> :path
                 label --> label
