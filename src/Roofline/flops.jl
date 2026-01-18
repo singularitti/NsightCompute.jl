@@ -102,9 +102,6 @@ const PEAK_METRIC_FACTORS = (
         ("sm__ops_path_tensor_src_int8.sum.peak_sustained", 1),
         ("sm__ops_path_tensor_src_tf32_dst_fp32.sum.peak_sustained", 1),
     ),
-    dram_bandwidth=(
-        ("dram__bytes.sum.peak_sustained", 1), ("dram__cycles_elapsed.avg.per_second", 1)
-    ),
 )
 
 """
