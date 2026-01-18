@@ -4,12 +4,12 @@ export compute_flops
 
 const METRIC_FACTORS = (
     frequency=("smsp__cycles_elapsed.avg.per_second", 10^9),  # GHz
-    double_precision=(
+    fp64=(
         ("smsp__sass_thread_inst_executed_op_dadd_pred_on.sum.per_cycle_elapsed", 1),
         ("smsp__sass_thread_inst_executed_op_dmul_pred_on.sum.per_cycle_elapsed", 1),
         ("smsp__sass_thread_inst_executed_op_dfma_pred_on.sum.per_cycle_elapsed", 2),
     ),
-    single_precision=(
+    fp32=(
         ("smsp__sass_thread_inst_executed_op_fadd_pred_on.sum.per_cycle_elapsed", 1),
         ("smsp__sass_thread_inst_executed_op_fmul_pred_on.sum.per_cycle_elapsed", 1),
         ("smsp__sass_thread_inst_executed_op_ffma_pred_on.sum.per_cycle_elapsed", 2),
@@ -17,7 +17,7 @@ const METRIC_FACTORS = (
         ("smsp__sass_thread_inst_executed_op_fmul2_pred_on.sum.per_cycle_elapsed", 2),
         ("smsp__sass_thread_inst_executed_op_ffma2_pred_on.sum.per_cycle_elapsed", 4),
     ),
-    half_precision=(
+    fp16=(
         ("smsp__sass_thread_inst_executed_op_hadd_pred_on.sum.per_cycle_elapsed", 2),
         ("smsp__sass_thread_inst_executed_op_hmul_pred_on.sum.per_cycle_elapsed", 2),
         ("smsp__sass_thread_inst_executed_op_hfma_pred_on.sum.per_cycle_elapsed", 4),
@@ -73,9 +73,9 @@ Compute per-category and total FLOPS from an Nsight Compute metrics table.
 
 # Returns
 A `NamedTuple` containing per-row vectors with the following fields:
-- `FLOPS_double_precision`
-- `FLOPS_single_precision`
-- `FLOPS_half_precision`
+- `FLOPS_fp64`
+- `FLOPS_fp32`
+- `FLOPS_fp16`
 - `FLOPS_tensor_core`
 - `FLOPS_total`
 """
@@ -92,18 +92,16 @@ function compute_flops(table)
     end
     frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency (Hz)
     # Calculate FLOPS per category (sum of metrics * frequency)
-    FLOPS_double_precision = _sum_group(:double_precision) .* frequency_hz
-    FLOPS_single_precision = _sum_group(:single_precision) .* frequency_hz
-    FLOPS_half_precision = _sum_group(:half_precision) .* frequency_hz
+    FLOPS_fp64 = _sum_group(:fp64) .* frequency_hz
+    FLOPS_fp32 = _sum_group(:fp32) .* frequency_hz
+    FLOPS_fp16 = _sum_group(:fp16) .* frequency_hz
     FLOPS_tensor_core = _sum_group(:tensor_core) .* frequency_hz
     # Total FLOPS
-    FLOPS_total =
-        FLOPS_double_precision .+ FLOPS_single_precision .+ FLOPS_half_precision .+
-        FLOPS_tensor_core
+    FLOPS_total = FLOPS_fp64 .+ FLOPS_fp32 .+ FLOPS_fp16 .+ FLOPS_tensor_core
     return (;
-        FLOPS_double_precision=FLOPS_double_precision,
-        FLOPS_single_precision=FLOPS_single_precision,
-        FLOPS_half_precision=FLOPS_half_precision,
+        FLOPS_fp64=FLOPS_fp64,
+        FLOPS_fp32=FLOPS_fp32,
+        FLOPS_fp16=FLOPS_fp16,
         FLOPS_tensor_core=FLOPS_tensor_core,
         FLOPS_total=FLOPS_total,
     )
