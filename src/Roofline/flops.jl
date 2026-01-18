@@ -108,65 +108,61 @@ const PEAK_METRIC_FACTORS = (
 )
 
 """
-    compute_flops(table)
+    compute_flops(table, peak=false)
 
-Compute per-category and total FLOPS from an Nsight Compute metrics table.
+Compute per-category and total FLOP/s from an Nsight Compute metrics table.
+
+When `peak=false` (default) this computes measured FLOP/s from running metrics.
+When `peak=true` this computes theoretical peak FLOP/s from the peak metric
+mapping (`PEAK_METRIC_FACTORS`).
 
 # Arguments
 - `table`: a `Tables.jl`-compatible table (rows or columnar) containing Nsight
   metric columns.
+- `peak::Bool=false`: whether to compute theoretical peak FLOP/s.
 
 # Returns
-A `NamedTuple` containing per-row vectors with the following fields:
+A `NamedTuple` containing per-row vectors. When `peak=false` the fields are:
 - `FLOPS_fp64`
 - `FLOPS_fp32`
 - `FLOPS_fp16`
 - `FLOPS_tensor_core`
 - `FLOPS_total`
+
+When `peak=true` the fields are:
+- `peak_FLOPS_fp64`
+- `peak_FLOPS_fp32`
+- `peak_FLOPS_fp16`
+- `peak_FLOPS_tensor_core`
+- `peak_FLOPS_total`
 """
-function compute_flops(table)
+function compute_flops(table, peak=false)
     @assert istable(table)
-    frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency (Hz)
+    metrics = peak ? PEAK_METRIC_FACTORS : METRIC_FACTORS
+    frequency_hz = _load_metric(table, metrics.frequency)  # Frequency (Hz)
     # Calculate FLOPS per category (sum of metrics * frequency)
-    FLOPS_fp64 = _sum_metric_group(table, METRIC_FACTORS, :fp64) .* frequency_hz
-    FLOPS_fp32 = _sum_metric_group(table, METRIC_FACTORS, :fp32) .* frequency_hz
-    FLOPS_fp16 = _sum_metric_group(table, METRIC_FACTORS, :fp16) .* frequency_hz
-    FLOPS_tensor_core = _sum_metric_group(table, METRIC_FACTORS, :tensor_core) .* frequency_hz
-    # Total FLOPS
-    FLOPS_total = FLOPS_fp64 .+ FLOPS_fp32 .+ FLOPS_fp16 .+ FLOPS_tensor_core
-    return (;
-        FLOPS_fp64=FLOPS_fp64,
-        FLOPS_fp32=FLOPS_fp32,
-        FLOPS_fp16=FLOPS_fp16,
-        FLOPS_tensor_core=FLOPS_tensor_core,
-        FLOPS_total=FLOPS_total,
-    )
-end
-
-"""
-    compute_peak_flops(table)
-
-Compute per-category and total peak FLOPS from an Nsight Compute metrics table.
-"""
-function compute_peak_flops(table)
-    @assert istable(table)
-    frequency_hz = _load_metric(table, PEAK_METRIC_FACTORS.frequency)
-    # Per-precision theoretical peaks (per-cycle counts times frequency)
-    peak_FLOPS_fp64 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp64) .* frequency_hz
-    peak_FLOPS_fp32 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp32) .* frequency_hz
-    peak_FLOPS_fp16 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp16) .* frequency_hz
-    peak_FLOPS_tensor_core =
-        _sum_metric_group(table, PEAK_METRIC_FACTORS, :tensor_core) .* frequency_hz
-    # Total theoretical peak (sum of per-precision peaks)
-    peak_FLOPS_total =
-        peak_FLOPS_fp64 .+ peak_FLOPS_fp32 .+ peak_FLOPS_fp16 .+ peak_FLOPS_tensor_core
-    return (;
-        peak_FLOPS_fp64=peak_FLOPS_fp64,
-        peak_FLOPS_fp32=peak_FLOPS_fp32,
-        peak_FLOPS_fp16=peak_FLOPS_fp16,
-        peak_FLOPS_tensor_core=peak_FLOPS_tensor_core,
-        peak_FLOPS_total=peak_FLOPS_total,
-    )
+    fp64 = _sum_metric_group(table, metrics, :fp64) .* frequency_hz
+    fp32 = _sum_metric_group(table, metrics, :fp32) .* frequency_hz
+    fp16 = _sum_metric_group(table, metrics, :fp16) .* frequency_hz
+    tensor = _sum_metric_group(table, metrics, :tensor_core) .* frequency_hz
+    total = fp64 .+ fp32 .+ fp16 .+ tensor
+    if peak
+        return (;
+            peak_FLOPS_fp64=fp64,
+            peak_FLOPS_fp32=fp32,
+            peak_FLOPS_fp16=fp16,
+            peak_FLOPS_tensor_core=tensor,
+            peak_FLOPS_total=total,
+        )
+    else
+        return (;
+            FLOPS_fp64=fp64,
+            FLOPS_fp32=fp32,
+            FLOPS_fp16=fp16,
+            FLOPS_tensor_core=tensor,
+            FLOPS_total=total,
+        )
+    end
 end
 
 _nrows(table) = length(rows(table))  # Number of rows
