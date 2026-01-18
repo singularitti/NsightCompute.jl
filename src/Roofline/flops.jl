@@ -126,25 +126,12 @@ A `NamedTuple` containing per-row vectors with the following fields:
 """
 function compute_flops(table)
     @assert istable(table)
-    n = _nrows(table)
-    function _sum_group(group_name)
-        s = zeros(n)
-        if group_name in keys(METRIC_FACTORS)
-            group = getfield(METRIC_FACTORS, group_name)
-        else
-            throw(ArgumentError("Unknown metric group: $group_name"))
-        end
-        for (name, factor) in group
-            s .+= _load_metric(table, (name, factor))
-        end
-        return s
-    end
     frequency_hz = _load_metric(table, METRIC_FACTORS.frequency)  # Frequency (Hz)
     # Calculate FLOPS per category (sum of metrics * frequency)
-    FLOPS_fp64 = _sum_group(:fp64) .* frequency_hz
-    FLOPS_fp32 = _sum_group(:fp32) .* frequency_hz
-    FLOPS_fp16 = _sum_group(:fp16) .* frequency_hz
-    FLOPS_tensor_core = _sum_group(:tensor_core) .* frequency_hz
+    FLOPS_fp64 = _sum_metric_group(table, METRIC_FACTORS, :fp64) .* frequency_hz
+    FLOPS_fp32 = _sum_metric_group(table, METRIC_FACTORS, :fp32) .* frequency_hz
+    FLOPS_fp16 = _sum_metric_group(table, METRIC_FACTORS, :fp16) .* frequency_hz
+    FLOPS_tensor_core = _sum_metric_group(table, METRIC_FACTORS, :tensor_core) .* frequency_hz
     # Total FLOPS
     FLOPS_total = FLOPS_fp64 .+ FLOPS_fp32 .+ FLOPS_fp16 .+ FLOPS_tensor_core
     return (;
@@ -174,25 +161,13 @@ A `NamedTuple` with fields:
 """
 function compute_peak_flops(table)
     @assert istable(table)
-    n = _nrows(table)
     frequency_hz = _load_metric(table, PEAK_METRIC_FACTORS.frequency)
-    function _sum_group(group_name)
-        s = zeros(n)
-        if group_name in keys(PEAK_METRIC_FACTORS)
-            group = getfield(PEAK_METRIC_FACTORS, group_name)
-        else
-            throw(ArgumentError("Unknown peak metric group: $group_name"))
-        end
-        for (name, factor) in group
-            s .+= _load_metric(table, (name, factor))
-        end
-        return s
-    end
     # Per-precision theoretical peaks (per-cycle counts times frequency)
-    peak_FLOPS_fp64 = _sum_group(:fp64) .* frequency_hz
-    peak_FLOPS_fp32 = _sum_group(:fp32) .* frequency_hz
-    peak_FLOPS_fp16 = _sum_group(:fp16) .* frequency_hz
-    peak_FLOPS_tensor_core = _sum_group(:tensor_core) .* frequency_hz
+    peak_FLOPS_fp64 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp64) .* frequency_hz
+    peak_FLOPS_fp32 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp32) .* frequency_hz
+    peak_FLOPS_fp16 = _sum_metric_group(table, PEAK_METRIC_FACTORS, :fp16) .* frequency_hz
+    peak_FLOPS_tensor_core =
+        _sum_metric_group(table, PEAK_METRIC_FACTORS, :tensor_core) .* frequency_hz
     # Total theoretical peak (sum of per-precision peaks)
     peak_FLOPS_total =
         peak_FLOPS_fp64 .+ peak_FLOPS_fp32 .+ peak_FLOPS_fp16 .+ peak_FLOPS_tensor_core
@@ -206,6 +181,22 @@ function compute_peak_flops(table)
 end
 
 _nrows(table) = length(rows(table))  # Number of rows
+
+# Sum a metric group from the provided metrics mapping (e.g., `METRIC_FACTORS`
+# or `PEAK_METRIC_FACTORS`) for the given `table`.
+function _sum_metric_group(table, metrics::NamedTuple, group_name::Symbol)
+    n = _nrows(table)
+    s = zeros(n)
+    if group_name in keys(metrics)
+        group = getfield(metrics, group_name)
+    else
+        throw(ArgumentError("Unknown metric group: $group_name"))
+    end
+    for (name, factor) in group
+        s .+= _load_metric(table, (name, factor))
+    end
+    return s
+end
 
 # Index of the column matching the name
 function _locatename(name, table)
