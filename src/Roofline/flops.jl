@@ -146,18 +146,7 @@ end
 """
     compute_peak_flops(table)
 
-Compute per-precision theoretical peak FLOP/s and the FP32 FMA-derived peak.
-
-# Arguments
-- `table`: a `Tables.jl`-compatible table containing Nsight Compute metrics.
-
-# Returns
-A `NamedTuple` with fields:
-- `peak_FLOPS_fp32::Vector{Float64}`: per-row FP32 FMA-derived and single-precision peak FLOP/s.
-- `peak_FLOPS_fp64::Vector{Float64}`: per-row double-precision peak FLOP/s.
-- `peak_FLOPS_fp16::Vector{Float64}`: per-row half-precision peak FLOP/s.
-- `peak_FLOPS_tensor_core::Vector{Float64}`: per-row tensor-core peak FLOP/s.
-- `peak_FLOPS_total::Vector{Float64}`: per-row total theoretical peak FLOP/s (sum of per-precision peaks).
+Compute per-category and total peak FLOPS from an Nsight Compute metrics table.
 """
 function compute_peak_flops(table)
     @assert istable(table)
