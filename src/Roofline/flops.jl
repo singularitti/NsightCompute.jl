@@ -151,7 +151,7 @@ end
 
 # Index of the column matching the name
 function _locatename(name, table)
-    indices = findall(startswith(name), string.(columnnames(table)))
+    indices = findall(==(name), string.(columnnames(table)))  # FIXME: `startswith` or `==`?
     if isempty(indices)  # Name not found
         return nothing
     end
