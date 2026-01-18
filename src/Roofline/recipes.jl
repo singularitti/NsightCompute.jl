@@ -7,10 +7,10 @@ using RecipesBase: @recipe, @series, @userplot
     xlabel --> raw"arithmetic intensity (FLOP/byte)"
     ylabel --> raw"performance (TFLOP/s)"
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
-    table = only(plot.args)
+    table, peak = plot.args
     # compute AI and achieved performance from the table
-    ai_data = compute_ai(table)
-    flops_data = compute_flops(table)
+    ai_data = compute_ai(table, peak)
+    flops_data = compute_flops(table, peak)
     # Categories to plot: (AI field, FLOPS field, label)
     categories = (
         (:AI_fp64, :FLOPS_fp64, "double"),
@@ -41,8 +41,8 @@ end
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
     fillalpha --> 0.2
     z_order := :back
-    table = only(plot.args)
-    flops = compute_flops(table)
+    table, peak = plot.args
+    flops = compute_flops(table, peak)
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
     ylims --> (0, :auto)
@@ -92,8 +92,8 @@ end
     xlabel --> "step"
     ylabel --> raw"arithmetic intensity (FLOP/byte)"
     fillalpha --> 0.2
-    table = only(plot.args)
-    ai = compute_ai(table)
+    table, peak = plot.args
+    ai = compute_ai(table, peak)
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
     ylims --> (0, :auto)
@@ -145,8 +145,8 @@ end
     ylims --> (0, 100)
     fillalpha --> 0.6
     linewidth --> 0
-    table = only(plot.args)
-    flops = compute_flops(table)
+    table, peak = plot.args
+    flops = compute_flops(table, peak)
     n = _nrows(table)
     steps = 1:n
     xlims --> extrema(steps)
