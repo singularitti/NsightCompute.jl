@@ -13,9 +13,9 @@ using RecipesBase: @recipe, @series, @userplot
     flops_data = compute_flops(table)
     # Categories to plot: (AI field, FLOPS field, label)
     categories = (
-        (:AI_double_precision, :FLOPS_double_precision, "double"),
-        (:AI_single_precision, :FLOPS_single_precision, "single"),
-        (:AI_half_precision, :FLOPS_half_precision, "half"),
+        (:AI_fp64, :FLOPS_fp64, "double"),
+        (:AI_fp32, :FLOPS_fp32, "single"),
+        (:AI_fp16, :FLOPS_fp16, "half"),
     )
     for (ai_name, flops_name, label) in categories
         if hasproperty(ai_data, ai_name) && hasproperty(flops_data, flops_name)
@@ -47,9 +47,9 @@ end
     xlims --> extrema(steps)
     ylims --> (0, :auto)
     categories = (
-        (:FLOPS_double_precision, "double"),
-        (:FLOPS_single_precision, "single"),
-        (:FLOPS_half_precision, "half"),
+        (:FLOPS_fp64, "double"),
+        (:FLOPS_fp32, "single"),
+        (:FLOPS_fp16, "half"),
         (:FLOPS_tensor_core, "tensor"),
         (:FLOPS_total, "total"),
     )
@@ -97,11 +97,7 @@ end
     steps = 1:_nrows(table)
     xlims --> extrema(steps)
     ylims --> (0, :auto)
-    categories = (
-        (:AI_double_precision, "double"),
-        (:AI_single_precision, "single"),
-        (:AI_half_precision, "half"),
-    )
+    categories = ((:AI_fp64, "double"), (:AI_fp32, "single"), (:AI_fp16, "half"))
     for (category_name, label) in categories
         if hasproperty(ai, category_name)
             vals = getproperty(ai, category_name)
@@ -135,8 +131,7 @@ function _compute_percentage_map(flops, categories, n)
         if haskey(per_category_values, category_name)
             values = per_category_values[category_name]
             percent = zeros(n)
-            percent[nonzero_mask] .=
-                100 .* values[nonzero_mask] ./ total_per_step[nonzero_mask]
+            percent[nonzero_mask] .= 100 .* values[nonzero_mask] ./ total_per_step[nonzero_mask]
             per_category_percent[category_name] = percent
         end
     end
@@ -156,9 +151,9 @@ end
     steps = 1:n
     xlims --> extrema(steps)
     categories = (
-        (:FLOPS_double_precision, "double"),
-        (:FLOPS_single_precision, "single"),
-        (:FLOPS_half_precision, "half"),
+        (:FLOPS_fp64, "double"),
+        (:FLOPS_fp32, "single"),
+        (:FLOPS_fp16, "half"),
         (:FLOPS_tensor_core, "tensor"),
     )
     # Collect numeric values and compute per-step denominators using helper
