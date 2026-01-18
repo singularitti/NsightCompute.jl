@@ -11,11 +11,11 @@ function compute_dram_bandwidth(table, peak=false)
         peak_bytes_per_cycle = _load_metric(table, ("dram__bytes.sum.peak_sustained", 10^3)) # kB/cycle (decimal)
         cycles_per_second = _load_metric(table, ("dram__cycles_elapsed.avg.per_second", 10^9)) # cycles/s
         bytes_per_second = peak_bytes_per_cycle .* cycles_per_second
-        tb_per_second = bytes_per_second ./ 10^12
-        return tb_per_second
+        TB_per_second = bytes_per_second ./ 10^12
+        return TB_per_second
     else
         # Measured metric is reported in TB/s; return it directly.
-        return _load_metric(table, ("dram__bytes.sum.per_second", 0.0))
+        return _load_metric(table, ("dram__bytes.sum.per_second", 1))
     end
 end
 
