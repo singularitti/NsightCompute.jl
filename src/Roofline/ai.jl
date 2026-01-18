@@ -20,15 +20,16 @@ function compute_dram_bandwidth(table, peak=false)
 end
 
 """
-    compute_ai(table)
+    compute_ai(table, peak=false)
 
 Compute per-category arithmetic intensity (AI = FLOPs / Bytes).
 """
-function compute_ai(table)
+function compute_ai(table, peak=false)
     @assert istable(table)
     # Get FLOPS vectors per category
-    flops = compute_flops(table)
-    DRAM_bandwidth = _load_metric(table, ("dram__bytes.sum.per_second", 10^12))  # Bandwidth in TB/s
+    flops = compute_flops(table, peak)
+    # Use measured DRAM bandwidth (TB/s) and convert to bytes/s so AI is FLOP/byte.
+    DRAM_bandwidth = compute_dram_bandwidth(table, peak) .* 10^12 # B/s
     AI_fp64 = _safe_div(flops.FLOPS_fp64, DRAM_bandwidth)
     AI_fp32 = _safe_div(flops.FLOPS_fp32, DRAM_bandwidth)
     AI_fp16 = _safe_div(flops.FLOPS_fp16, DRAM_bandwidth)
