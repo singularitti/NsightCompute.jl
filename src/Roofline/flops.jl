@@ -82,10 +82,14 @@ A `NamedTuple` containing per-row vectors with the following fields:
 function compute_flops(table)
     @assert istable(table)
     n = _nrows(table)
-    function _sum_group(group::Symbol)
+    function _sum_group(group_name)
         s = zeros(n)
-        grp = getfield(METRIC_FACTORS, group)
-        for (name, factor) in grp
+        if group_name in keys(METRIC_FACTORS)
+            group = getfield(METRIC_FACTORS, group_name)
+        else
+            throw(ArgumentError("Unknown metric group: $group_name"))
+        end
+        for (name, factor) in group
             s .+= _load_metric(table, (name, factor))
         end
         return s
