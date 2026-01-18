@@ -3,7 +3,7 @@ using Tables: columnnames, getcolumn, istable, rows
 export compute_flops
 
 const METRIC_FACTORS = (
-    frequency=("smsp__cycles_elapsed.avg.per_second", 10^9),
+    frequency=("smsp__cycles_elapsed.avg.per_second", 10^9),  # GHz
     double_precision=(
         ("smsp__sass_thread_inst_executed_op_dadd_pred_on.sum.per_cycle_elapsed", 1),
         ("smsp__sass_thread_inst_executed_op_dmul_pred_on.sum.per_cycle_elapsed", 1),
