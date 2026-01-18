@@ -110,28 +110,7 @@ const PEAK_METRIC_FACTORS = (
 Compute per-category and total FLOP/s from an Nsight Compute metrics table.
 
 When `peak=false` (default) this computes measured FLOP/s from running metrics.
-When `peak=true` this computes theoretical peak FLOP/s from the peak metric
-mapping (`PEAK_METRIC_FACTORS`).
-
-# Arguments
-- `table`: a `Tables.jl`-compatible table (rows or columnar) containing Nsight
-  metric columns.
-- `peak::Bool=false`: whether to compute theoretical peak FLOP/s.
-
-# Returns
-A `NamedTuple` containing per-row vectors. When `peak=false` the fields are:
-- `FLOPS_fp64`
-- `FLOPS_fp32`
-- `FLOPS_fp16`
-- `FLOPS_tensor_core`
-- `FLOPS_total`
-
-When `peak=true` the fields are:
-- `peak_FLOPS_fp64`
-- `peak_FLOPS_fp32`
-- `peak_FLOPS_fp16`
-- `peak_FLOPS_tensor_core`
-- `peak_FLOPS_total`
+When `peak=true` this computes theoretical peak FLOP/s from the peak metric mapping.
 """
 function compute_flops(table, peak=false)
     @assert istable(table)
@@ -143,23 +122,13 @@ function compute_flops(table, peak=false)
     fp16 = _sum_metric_group(table, metrics, :fp16) .* frequency_hz
     tensor = _sum_metric_group(table, metrics, :tensor_core) .* frequency_hz
     total = fp64 .+ fp32 .+ fp16 .+ tensor
-    if peak
-        return (;
-            peak_FLOPS_fp64=fp64,
-            peak_FLOPS_fp32=fp32,
-            peak_FLOPS_fp16=fp16,
-            peak_FLOPS_tensor_core=tensor,
-            peak_FLOPS_total=total,
-        )
-    else
-        return (;
-            FLOPS_fp64=fp64,
-            FLOPS_fp32=fp32,
-            FLOPS_fp16=fp16,
-            FLOPS_tensor_core=tensor,
-            FLOPS_total=total,
-        )
-    end
+    return (;
+        FLOPS_fp64=fp64,
+        FLOPS_fp32=fp32,
+        FLOPS_fp16=fp16,
+        FLOPS_tensor_core=tensor,
+        FLOPS_total=total,
+    )
 end
 
 _nrows(table) = length(rows(table))  # Number of rows
