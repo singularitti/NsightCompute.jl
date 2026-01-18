@@ -171,7 +171,8 @@ end
 # Convert to Float64, handling "no data" and missing values
 function _safer_column(col)
     if eltype(col) <: AbstractString
-        return [v == "no data" ? 0.0 : parse(Float64, v) for v in col]
+        # See https://discourse.julialang.org/t/how-to-convert-comma-seperated-number-to-number/76906/6
+        return [v == "no data" ? 0.0 : parse(Float64, replace(v, "," => "")) for v in col]  # Handle "no data" and commas in numbers
     else
         return coalesce.(col, 0.0)
     end
