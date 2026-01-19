@@ -7,29 +7,86 @@ using RecipesBase: @recipe, @series, @userplot
     xlabel --> raw"arithmetic intensity (FLOP/byte)"
     ylabel --> raw"performance (TFLOP/s)"
     yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
-    table, peak = plot.args
-    # compute AI and achieved performance from the table
-    ai_data = compute_ai(table, peak)
-    flops_data = compute_flops(table, peak)
+    # Support either `rooflineplot(table)` or `rooflineplot(table, peak=false)`
+    table = only(plot.args)
+    # Compute achieved AI and performance from the table
+    ai_data = compute_ai(table, false)
+    flops_data = compute_flops(table, false)
+    # Peak/theoretical values (per-precision);
+    peak_flops = compute_flops(table, true)
+    # Peak DRAM bandwidth (TB/s) -> bytes/s
+    dram_peak_tb = compute_dram_bandwidth(table, true)
+    dram_peak_bytes = maximum(dram_peak_tb) * 10^12
+    @assert !iszero(dram_peak_bytes)
     # Categories to plot: (AI field, FLOPS field, label)
     categories = (
         (:AI_fp64, :FLOPS_fp64, "double"),
         (:AI_fp32, :FLOPS_fp32, "single"),
         (:AI_fp16, :FLOPS_fp16, "half"),
     )
-    for (ai_name, flops_name, label) in categories
-        if hasproperty(ai_data, ai_name) && hasproperty(flops_data, flops_name)
-            ai_datum = getproperty(ai_data, ai_name)
-            flops_datum = getproperty(flops_data, flops_name)
-            # filter positive values for log-log plot (infinite values are assumed impossible)
-            mask = (ai_datum .> 0) .& (flops_datum .> 0)
-            if any(mask)
-                @series begin
-                    seriestype := :scatter
-                    label --> label
-                    ai_datum[mask], flops_datum[mask]
-                end
-            end
+    for (index, (ai_name, flops_name, label)) in enumerate(categories)
+        ai_datum = filter(ispositive, getproperty(ai_data, ai_name))
+        flops_datum = filter(ispositive, getproperty(flops_data, flops_name))
+        peak_vals = filter(ispositive, getproperty(peak_flops, flops_name))
+        if isempty(ai_datum) || isempty(flops_datum) || isempty(peak_vals)
+            throw(
+                DomainError(
+                    """
+                    no positive values found in AI, FLOPS, or peak FLOPS data for category $label.
+                    Roofline plot requires positive values for log-log scale.
+                    """
+                ),
+            )
+        end
+        peak_val = maximum(peak_vals)
+        ai_ridge = peak_val / dram_peak_bytes
+        ai_min = min(minimum(ai_datum), ai_ridge) / 1000
+        ai_max = max(maximum(ai_datum), ai_ridge) * 1000
+        ai_before_ridge = [ai_min, ai_ridge]
+        ai_after_ridge = [ai_ridge, ai_max]
+        # Horizontal roofline (peak FLOP/s)
+        @series begin
+            seriestype --> :path
+            seriescolor --> index
+            linestyle --> :dash
+            primary := false
+            ai_before_ridge, fill(peak_val, length(ai_before_ridge))
+        end
+        @series begin
+            seriestype --> :path
+            seriescolor --> index
+            linestyle --> :solid
+            primary := false
+            ai_after_ridge, fill(peak_val, length(ai_after_ridge))
+        end
+        # Memory-bound roofline (bandwidth slope)
+        @series begin
+            seriestype --> :path
+            seriescolor --> index
+            linestyle --> :solid
+            primary := false
+            ai_before_ridge, ai_before_ridge .* dram_peak_bytes
+        end
+        @series begin
+            seriestype --> :path
+            seriescolor --> index
+            linestyle --> :dash
+            primary := false
+            ai_after_ridge, ai_after_ridge .* dram_peak_bytes
+        end
+        @series begin
+            seriestype := :scatter
+            markershape --> :rect
+            label --> label * " ridge"
+            seriescolor --> index
+            z_order := :back
+            [ai_ridge], [peak_val]
+        end
+        @series begin
+            seriestype := :scatter
+            label --> label
+            seriescolor --> index
+            ai_datum, flops_datum
         end
     end
 end
