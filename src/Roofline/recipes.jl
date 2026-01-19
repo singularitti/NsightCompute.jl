@@ -5,8 +5,7 @@ using RecipesBase: @recipe, @series, @userplot
     xscale --> :log10
     yscale --> :log10
     xlabel --> raw"arithmetic intensity (FLOP/byte)"
-    ylabel --> raw"performance (TFLOP/s)"
-    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
+    ylabel --> raw"performance (FLOP/s)"
     # Support either `rooflineplot(table)` or `rooflineplot(table, peak=false)`
     table = only(plot.args)
     # Compute achieved AI and performance from the table
@@ -86,8 +85,7 @@ end
 @userplot FlopsPlot
 @recipe function f(plot::FlopsPlot; stacked=false)
     xlabel --> "step"
-    ylabel --> raw"performance (TFLOP/s)"
-    yformatter --> (y -> string(round(y / 10^12; sigdigits=3)))  # Convert FLOPs to TFLOPs
+    ylabel --> raw"performance (FLOP/s)"
     fillalpha --> 0.2
     z_order := :back
     table, peak = plot.args
