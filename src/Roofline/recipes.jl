@@ -27,15 +27,16 @@ using RecipesBase: @recipe, @series, @userplot
         ai_datum = filter(ispositive, getproperty(ai_data, ai_name))
         flops_datum = filter(ispositive, getproperty(flops_data, flops_name))
         peak_vals = filter(ispositive, getproperty(peak_flops, flops_name))
-        if isempty(ai_datum) || isempty(flops_datum) || isempty(peak_vals)
-            throw(
-                DomainError(
-                    """
-                    no positive values found in AI, FLOPS, or peak FLOPS data for category $label.
-                    Roofline plot requires positive values for log-log scale.
-                    """
-                ),
-            )
+        for datum in (ai_datum, flops_datum, peak_vals)
+            if isempty(datum)
+                throw(
+                    DomainError(
+                        datum,
+                        """no positive values found in AI, FLOPS, or peak FLOPS data for category $label.
+                        Roofline plot requires positive values for log-log scale.""",
+                    ),
+                )
+            end
         end
         peak_val = maximum(peak_vals)
         ai_ridge = peak_val / dram_peak_bytes
