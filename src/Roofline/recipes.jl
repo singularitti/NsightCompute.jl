@@ -76,14 +76,6 @@ using RecipesBase: @recipe, @series, @userplot
         end
         @series begin
             seriestype := :scatter
-            markershape --> :rect
-            label --> label * " ridge"
-            seriescolor --> index
-            z_order := :back
-            [ai_ridge], [peak_val]
-        end
-        @series begin
-            seriestype := :scatter
             label --> label
             seriescolor --> index
             ai_datum, flops_datum
