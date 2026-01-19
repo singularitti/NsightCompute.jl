@@ -3,7 +3,7 @@ module DataFramesExt
 using DataFrames: DataFrame
 using Tables: rows
 
-import NsightCompute: compute_flops, compute_ai
+import NsightCompute.Roofline: compute_flops, compute_ai
 
 compute_flops(data::DataFrame, peak=false) = DataFrame(compute_flops(rows(data), peak))
 
