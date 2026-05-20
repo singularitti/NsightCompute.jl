@@ -1,6 +1,6 @@
 using Tables: columnnames, getcolumn, istable, rows
 
-export compute_flops, compute_peak_flops
+export compute_flops
 
 const METRIC_FACTORS = (
     frequency=("smsp__cycles_elapsed.avg.per_second", 10^9),  # GHz
